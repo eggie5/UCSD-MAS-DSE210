@@ -12,6 +12,7 @@ class NaiveBayesClassifier(object):
     
     def train(self, features, targets, vocab=None):
         target_count = len(set(targets))
+        target_names = list(set(targets))
         example_count = len(features)
         print("Total training examples: ")+str(example_count)
         print("Total targets: ")+str(target_count)
@@ -32,16 +33,18 @@ class NaiveBayesClassifier(object):
         #preprocessing -- need these constants before calculating posteri
         print "training step 1..."
         for i in range(example_count):
-            print "Training step #1 for target: "+str(i)+" ..."
+            # print "Training step #1 for example: "+str(i)+" ..."
             example = features[i]
             target = targets[i]
         
             #setup the internal data structure
             if(target not in self.training):
-                self.training[target]={'count':0, 'prob': 0.0, 'blob': [], 'n': 0, 'words':{}}
+                self.training[target]={'count':0, 'prob': 0.0, 'blob': [], 'text':{}, 'n': 0, 'words':{}}
             
             #put the example doc words in the category bag
             self.training[target]['blob']+=example
+            for word in example:
+                self.training[target]['text'][word]=True
             self.training[target]['n'] = len(list(set(self.training[target]['blob'])))
 
             #calc. priori probabilities
@@ -50,11 +53,10 @@ class NaiveBayesClassifier(object):
 
     
         print "training step 2..."
-        #now iterate the vocabulary for each category
+        #now iterate the vocabulary for each category (20 iterations)
         for i in range(target_count):
-            print "Training step #2 for target: "+str(i)+" ..."
-            
-            target = targets[i]
+            target = target_names[i]
+            print "Training step #2 for target: "+str(target)+" ..."
         
             m=len(self.vocabulary)
             n = self.training[target]['n']
@@ -65,12 +67,13 @@ class NaiveBayesClassifier(object):
                     # in the vocab but not in the blob
                     self.training[target]['words'][word]={'count':0, 'prob':1.0/norm}
 
-                if(word in self.training[target]['blob']):
+                #only words in the document blob
+                if(word in self.training[target]['text'] ):
                     self.training[target]['words'][word]['count']+=1
                     count = self.training[target]['words'][word]['count']
                     self.training[target]['words'][word]['prob']= (count + 1.0) / norm
-        
-        pp.pprint(self.training)
+
+        # pp.pprint(self.training)
         return True
 
         
@@ -78,7 +81,7 @@ class NaiveBayesClassifier(object):
         # print vocabulary
     
     def predict(self, Y):
-        print ("running predictions...")
+        # print ("running predictions...")
         #TODO: Fix -> this removes duplicates, e.g.: Y=[1,2,3,9,9,9,9]
         positions = Y#list(set(self.vocabulary) & set(Y)) #remove words that are out of vocab.
 
@@ -86,20 +89,12 @@ class NaiveBayesClassifier(object):
 
         for target in self.training.keys():
             prob_target = self.training[target]['prob']
-            # print "Target "+str(target)+" prob: "+str(prob_target)
-            # product = 1.0
             rsum=0
             for word in positions:
                 word_prob =  self.training[target]['words'][word]['prob']
-                # print "P("+str(word)+"|"+str(target)+") = "+str(word_prob)
-                # product *= word_prob
                 rsum+= np.log2(word_prob)
-            # target_prob = prob_target * product
             target_prob = np.log2(prob_target) + rsum
             probabilities[target_prob]=target
-            # print "Target "+str(target)+" total prob. product: "+str(target_prob)
-            # print ""
-        # print probabilities
         return  probabilities[max(probabilities)]
         
 if __name__ == "__main__":
@@ -107,8 +102,8 @@ if __name__ == "__main__":
     pp = pprint.PrettyPrinter(depth=6)
     
     clf =  NaiveBayesClassifier("hi")
-    X=[[1,2],[3,4],[5,6], [1,2]]
-    y=[1, 2, 3, 1]
-    clf.train(X,y, vocab=[1,2,3,4,5,6,7,8,9])
-    category = clf.predict([1,2])
+    X=[[1,2],[3,4],[5,6], [1,2], [99,34]]
+    y=[1, 2, 3, 1, 1]
+    clf.train(X,y, vocab=[1,2,3,4,5,6,7,8,9, 34, 99])
+    category = clf.predict([5,6])
     print category
