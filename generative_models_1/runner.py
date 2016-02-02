@@ -7,7 +7,7 @@ clf =  lib.NaiveBayesClassifier("hi")
 # category = clf.predict([1,2,3,4,5,6])
 # print category
 
-import impl as nb
+# import impl as nb
 import utils as utils
 import numpy as np
 
@@ -25,9 +25,10 @@ test_features = utils.read_features("test_expanded.txt")
 
 vocab = utils.read_vocab("vocabulary.txt")
 
-example_count=11269 #11269 total examples in training set
+example_count=11269# total examples in training set
 #nb.train(features[0:example_count,],label_array[0:example_count,])
 clf.train(features[0:example_count], label_array[0:example_count], vocab=vocab)
+
 #
 # Y=[9,6]
 # print "\nTrying to predict: "+str(Y)

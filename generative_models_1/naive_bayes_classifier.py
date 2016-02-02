@@ -56,7 +56,7 @@ class NaiveBayesClassifier(object):
         #now iterate the vocabulary for each category (20 iterations)
         for i in range(target_count):
             target = target_names[i]
-            print "Training step #2 for target: "+str(target)+" ..."
+            # print "Training step #2 for target: "+str(target)+" ..."
         
             m=len(self.vocabulary)
             n = self.training[target]['n']
@@ -65,13 +65,13 @@ class NaiveBayesClassifier(object):
             for word in self.vocabulary:
                 if(word not in self.training[target]['words']):
                     # in the vocab but not in the blob
-                    self.training[target]['words'][word]={'count':0, 'prob':1.0/norm}
+                    self.training[target]['words'][word]={'count':0, 'prob':1.0}
 
                 #only words in the document blob
                 if(word in self.training[target]['text'] ):
                     self.training[target]['words'][word]['count']+=1
                     count = self.training[target]['words'][word]['count']
-                    self.training[target]['words'][word]['prob']= (count + 1.0) / norm
+                    self.training[target]['words'][word]['prob']= (count + 1.0) #/ norm
 
         # pp.pprint(self.training)
         return True

@@ -1,0 +1,4 @@
+.tm_properties
+*.pyc
+generative_models_1/20news-bydate/
+generative_models_1/20news-bydate-matlab/
