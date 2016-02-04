@@ -1,5 +1,5 @@
 import numpy as np
-from collections import Counter
+import time
 
 class NaiveBayesClassifier(object):
     """docstring for NaiveBayesClassifier"""
@@ -11,6 +11,7 @@ class NaiveBayesClassifier(object):
         self.vocabulary = set()
     
     def train(self, features, targets, vocab=None):
+        start = time.time()
         target_count = len(set(targets))
         target_names = list(set(targets))
         example_count = len(features)
@@ -60,20 +61,23 @@ class NaiveBayesClassifier(object):
         
             m=len(self.vocabulary)
             n = self.training[target]['n']
-            norm = n+m
+            norm = 1#n+m
  
             for word in self.vocabulary:
                 if(word not in self.training[target]['words']):
                     # in the vocab but not in the blob
-                    self.training[target]['words'][word]={'count':0, 'prob':1.0}
+                    self.training[target]['words'][word]={'count':0, 'prob':1.0/norm}
 
                 #only words in the document blob
                 if(word in self.training[target]['text'] ):
                     self.training[target]['words'][word]['count']+=1
                     count = self.training[target]['words'][word]['count']
-                    self.training[target]['words'][word]['prob']= (count + 1.0) #/ norm
+                    self.training[target]['words'][word]['prob']= (count + 1.0)# / norm
 
         # pp.pprint(self.training)
+        end = time.time()
+        elapsed = (end - start)
+        print "Training Complete: {0}s".format(elapsed)
         return True
 
         
@@ -92,7 +96,8 @@ class NaiveBayesClassifier(object):
             rsum=0
             for word in positions:
                 word_prob =  self.training[target]['words'][word]['prob']
-                rsum+= np.log2(word_prob)
+                word_count = self.training[target]['words'][word]['count']
+                rsum+=  np.log2(word_prob)
             target_prob = np.log2(prob_target) + rsum
             probabilities[target_prob]=target
         return  probabilities[max(probabilities)]
