@@ -25,16 +25,21 @@ test_features = utils.read_features("test_expanded.txt")
 
 vocab = utils.read_vocab("vocabulary.txt")
 
-example_count=11269# total examples in training set
+#remove stop words
+from stop_words import get_stop_words
+stop_words = get_stop_words('en')
+# vocab = set(vocab)
+
+# example_count=11269# total examples in training set
 #nb.train(features[0:example_count,],label_array[0:example_count,])
-clf.train(features[0:example_count], label_array[0:example_count], vocab=vocab)
+clf.train(features, label_array, vocab=vocab)
 
 #
 # Y=[9,6]
 # print "\nTrying to predict: "+str(Y)
 
 correct_count = 0
-for i in range(len(answer_label_array[0:example_count])):
+for i in range(len(answer_label_array)):
     # pred_answer= nb.predict(test_features[i])
     pred_answer = clf.predict(test_features[i])
     actual_answer = answer_label_array[i]
@@ -46,8 +51,8 @@ for i in range(len(answer_label_array[0:example_count])):
         # print "expected {0}, actual: {1}".format(pred_answer, actual_answer)
         
 
-print "{0}/{1}".format(correct_count, len(answer_label_array[0:example_count]))
-print float(correct_count)/len(answer_label_array[0:example_count])
+print "{0}/{1}".format(correct_count, len(answer_label_array))
+print float(correct_count)/len(answer_label_array)
 
 
 
