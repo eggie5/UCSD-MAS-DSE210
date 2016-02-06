@@ -66,7 +66,7 @@ class NaiveBayesClassifier(object):
             for word in self.vocabulary:
                 if(word not in self.training[target]['words']):
                     # in the vocab but not in the blob
-                    self.training[target]['words'][word]={'count':0, 'prob':1.0/norm}
+                    self.training[target]['words'][word]={'count':0, 'prob':1.0}
 
                 #only words in the document blob
                 if(word in self.training[target]['text'] ):

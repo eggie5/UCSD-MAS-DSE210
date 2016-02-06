@@ -77,3 +77,17 @@ print float(correct_count)/len(answer_label_array)
 # MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)
 # print("\n scikit: ")
 # print(clf.predict(Y))
+
+
+
+# w/ the smoothing
+# 11269
+# Total training examples: 11269
+# Total targets: 20
+# Buildign vocabulary from user input
+# Vocabulary count: 61188
+# Estimated iterations: 1223760
+# training step 1...
+# training step 2...
+# 5364/7505
+# 0.714723517655
