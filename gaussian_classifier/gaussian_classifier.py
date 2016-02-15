@@ -5,9 +5,10 @@ import loader as loader
 from sklearn.covariance import EmpiricalCovariance
 
 class GaussianClassifier(object):
-    def __init__(self, c=1):
+    def __init__(self, c=1, cov_algo="numpy"):
         super(GaussianClassifier, self).__init__()
         self.c=c
+        self.cov_algo = cov_algo
 
     def _examples_for_class(self, klass, X_train, Y_train):
         examples = []
@@ -20,6 +21,7 @@ class GaussianClassifier(object):
 
     def fit(self, X, y):
         X, y = check_X_y(X, y)
+        print("c=%s, cov_algo=%s"%(self.c,self.cov_algo))
         
         classes=np.unique(y)
         self.classes_ = np.unique(y)
@@ -44,12 +46,11 @@ class GaussianClassifier(object):
         for klass in self.classes_:
             examples = self._examples_for_class(klass, X, y)
             mean = np.array(examples.mean(0))[0]
-            # cov = np.cov(examples, rowvar=0)
-            # cov_smoothed = cov + (self.c * np.eye(mean.shape[0]))
-            ec=EmpiricalCovariance()
-            cov_smoothed = ec.fit(examples).covariance_
-            p_x = multivariate_normal(mean=mean, cov=cov_smoothed, allow_singular=False)
+            cov = self._cov(examples)
+            cov_smoothed = cov + (self.c * np.eye(mean.shape[0]))
+            p_x = multivariate_normal(mean=mean, cov=cov_smoothed)
             self.posteriors.append(p_x)
+        return self
     
     def predict(self, X):
         Y = []
@@ -61,6 +62,23 @@ class GaussianClassifier(object):
             prediction = max(bayes_probs, key= lambda a: a[1])
             Y.append(prediction[0])
         return Y
+        
+    def _cov(self, examples):
+        if self.cov_algo =="numpy":
+            return np.cov(examples, rowvar=0)
+        elif self.cov_algo == "EmpiricalCovariance":
+            return EmpiricalCovariance().fit(examples).covariance_
+        else:
+            return None
+            
+    
+    def get_params(self, deep=True):
+        params = {'c': 1.0, 'cov_algo': 'numpy'}
+        return params
+    
+    def set_params(self, **params):
+        for key, value in params.iteritems():
+            setattr(self, key, value)
         
 if __name__ == "__main__":
     import pprint 
